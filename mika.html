@@ -1,0 +1,1900 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>המירוץ למיליון - מיקה</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --bg-primary: #0f172a;
+      --bg-secondary: #1e293b;
+      --bg-card: #334155;
+      --text-primary: #f8fafc;
+      --text-secondary: #94a3b8;
+      --accent-blue: #3b82f6;
+      --accent-green: #22c55e;
+      --accent-red: #ef4444;
+      --accent-yellow: #eab308;
+      --accent-purple: #a855f7;
+      --accent-orange: #f97316;
+      --gold: #ffd700;
+      --silver: #c0c0c0;
+      --bronze: #cd7f32;
+    }
+
+    body {
+      font-family: 'Heebo', sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      min-height: 100vh;
+      min-height: 100dvh;
+      overflow-x: hidden;
+    }
+
+    .container {
+      max-width: 540px;
+      margin: 0 auto;
+      padding: 1rem;
+      min-height: 100vh;
+      min-height: 100dvh;
+    }
+
+    .screen {
+      display: none;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .screen.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Header */
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+      padding: 0.5rem 0;
+    }
+
+    .timer {
+      background: var(--accent-orange);
+      color: white;
+      padding: 0.5rem 1rem;
+      border-radius: 2rem;
+      font-weight: 600;
+      font-size: 1.1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .player-info {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 1rem;
+    }
+
+    /* Cards */
+    .card {
+      background: var(--bg-secondary);
+      border-radius: 1rem;
+      padding: 1.25rem;
+      margin-bottom: 1rem;
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .card-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-bottom: 0.75rem;
+      text-align: center;
+    }
+
+    /* Buttons */
+    .btn {
+      width: 100%;
+      padding: 1rem;
+      border: none;
+      border-radius: 0.75rem;
+      font-family: inherit;
+      font-size: 1.1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+
+    .btn:active {
+      transform: scale(0.98);
+    }
+
+    .btn-primary {
+      background: var(--accent-blue);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: #2563eb;
+    }
+
+    .btn-primary:disabled {
+      background: var(--bg-card);
+      color: var(--text-secondary);
+      cursor: not-allowed;
+    }
+
+    .btn-secondary {
+      background: var(--bg-card);
+      color: var(--text-primary);
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+
+    /* Mode Selection */
+    .mode-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .mode-btn {
+      background: var(--bg-card);
+      border: 2px solid transparent;
+      border-radius: 0.75rem;
+      padding: 1rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-align: right;
+    }
+
+    .mode-btn:hover {
+      border-color: var(--accent-blue);
+    }
+
+    .mode-btn.selected {
+      border-color: var(--accent-blue);
+      background: rgba(59, 130, 246, 0.2);
+    }
+
+    .mode-btn.daily {
+      border-color: var(--accent-purple);
+      background: rgba(168, 85, 247, 0.1);
+    }
+
+    .mode-btn.daily.selected {
+      background: rgba(168, 85, 247, 0.3);
+    }
+
+    .mode-name {
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-bottom: 0.25rem;
+    }
+
+    .mode-desc {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+    }
+
+    .mode-resources {
+      display: flex;
+      gap: 1rem;
+      margin-top: 0.5rem;
+      font-size: 0.8rem;
+    }
+
+    /* Map */
+    .map-container {
+      background: #1a365d;
+      border-radius: 1rem;
+      overflow: hidden;
+      margin-bottom: 1rem;
+      position: relative;
+    }
+
+    .map-svg {
+      width: 100%;
+      display: block;
+    }
+
+    .progress-overlay {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: rgba(0,0,0,0.7);
+      padding: 0.5rem 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .progress-text {
+      font-size: 0.85rem;
+      white-space: nowrap;
+    }
+
+    .progress-bar {
+      flex: 1;
+      height: 6px;
+      background: rgba(255,255,255,0.2);
+      border-radius: 3px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: var(--accent-green);
+      border-radius: 3px;
+      transition: width 0.5s ease;
+    }
+
+    /* Question */
+    .question-header {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+      margin-bottom: 1rem;
+    }
+
+    .character-avatar {
+      font-size: 2.5rem;
+    }
+
+    .character-info {
+      flex: 1;
+    }
+
+    .character-name {
+      font-weight: 600;
+    }
+
+    .character-location {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+    }
+
+    .question-text {
+      font-size: 1.2rem;
+      line-height: 1.8;
+      text-align: center;
+      margin-bottom: 1.5rem;
+    }
+
+    .question-text .highlight {
+      color: var(--accent-blue);
+      font-weight: 600;
+    }
+
+    /* Answers */
+    .answers-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.75rem;
+      margin-bottom: 1rem;
+    }
+
+    .answer-btn {
+      background: var(--bg-card);
+      border: 2px solid rgba(255,255,255,0.1);
+      border-radius: 0.75rem;
+      padding: 1rem;
+      font-family: inherit;
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .answer-btn:hover:not(:disabled) {
+      border-color: var(--accent-blue);
+      background: rgba(59, 130, 246, 0.2);
+    }
+
+    .answer-btn.correct {
+      background: rgba(34, 197, 94, 0.3);
+      border-color: var(--accent-green);
+    }
+
+    .answer-btn.wrong {
+      background: rgba(239, 68, 68, 0.3);
+      border-color: var(--accent-red);
+      opacity: 0.5;
+    }
+
+    .answer-btn:disabled {
+      cursor: not-allowed;
+    }
+
+    /* Lifelines */
+    .lifelines {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .lifeline-btn {
+      flex: 1;
+      background: var(--bg-card);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 0.5rem;
+      padding: 0.6rem;
+      font-family: inherit;
+      font-size: 0.85rem;
+      color: var(--text-primary);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .lifeline-btn:hover:not(:disabled) {
+      background: var(--bg-secondary);
+      border-color: var(--accent-blue);
+    }
+
+    .lifeline-btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    .lifeline-count {
+      color: var(--text-secondary);
+    }
+
+    /* Feedback */
+    .feedback {
+      border-radius: 0.75rem;
+      padding: 1rem;
+      margin-top: 1rem;
+      text-align: center;
+      animation: slideUp 0.3s ease;
+    }
+
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .feedback-wrong {
+      background: rgba(239, 68, 68, 0.2);
+      border: 1px solid var(--accent-red);
+      color: #fca5a5;
+    }
+
+    .feedback-correct {
+      background: rgba(34, 197, 94, 0.2);
+      border: 1px solid var(--accent-green);
+      color: #86efac;
+    }
+
+    .feedback-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-bottom: 0.25rem;
+    }
+
+    .hint-box {
+      background: rgba(59, 130, 246, 0.2);
+      border: 1px solid var(--accent-blue);
+      border-radius: 0.75rem;
+      padding: 1rem;
+      margin-top: 1rem;
+      font-size: 0.95rem;
+      line-height: 1.6;
+    }
+
+    .explanation-box {
+      background: var(--bg-card);
+      border-radius: 0.75rem;
+      padding: 1rem;
+      margin-top: 0.75rem;
+      font-size: 0.9rem;
+      line-height: 1.7;
+      text-align: right;
+    }
+
+    /* Finish Screen */
+    .finish-trophy {
+      text-align: center;
+      margin-bottom: 1rem;
+    }
+
+    .trophy-icon {
+      font-size: 4rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .finish-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+    }
+
+    .finish-subtitle {
+      color: var(--text-secondary);
+    }
+
+    .medal-display {
+      text-align: center;
+      padding: 1.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .medal-icon {
+      font-size: 5rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .medal-name {
+      font-size: 1.5rem;
+      font-weight: 700;
+    }
+
+    .medal-gold { color: var(--gold); }
+    .medal-silver { color: var(--silver); }
+    .medal-bronze { color: var(--bronze); }
+
+    .stats-grid {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .stat-box {
+      flex: 1;
+      background: var(--bg-card);
+      border-radius: 0.75rem;
+      padding: 0.75rem;
+      text-align: center;
+    }
+
+    .stat-value {
+      font-size: 1.5rem;
+      font-weight: 700;
+    }
+
+    .stat-label {
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+    }
+
+    .time-display {
+      background: var(--accent-green);
+      color: white;
+    }
+
+    /* Route recap */
+    .route-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      justify-content: center;
+    }
+
+    .route-tag {
+      background: rgba(34, 197, 94, 0.2);
+      color: var(--accent-green);
+      padding: 0.35rem 0.75rem;
+      border-radius: 1rem;
+      font-size: 0.8rem;
+    }
+
+    .route-tag.finish {
+      background: rgba(59, 130, 246, 0.2);
+      color: var(--accent-blue);
+    }
+
+    /* Achievements */
+    .achievements {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      justify-content: center;
+      margin-bottom: 1rem;
+    }
+
+    .achievement {
+      background: rgba(234, 179, 8, 0.2);
+      border: 1px solid var(--accent-yellow);
+      color: var(--accent-yellow);
+      padding: 0.5rem 1rem;
+      border-radius: 0.5rem;
+      font-size: 0.9rem;
+      font-weight: 500;
+    }
+
+    /* Summary code */
+    .summary-code {
+      background: var(--bg-primary);
+      border: 2px dashed var(--text-secondary);
+      border-radius: 0.75rem;
+      padding: 1rem;
+      text-align: center;
+      margin-bottom: 1rem;
+    }
+
+    .code-label {
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      margin-bottom: 0.25rem;
+    }
+
+    .code-value {
+      font-family: monospace;
+      font-size: 1.1rem;
+      font-weight: 600;
+      letter-spacing: 1px;
+    }
+
+    /* Flying screen */
+    .flying-message {
+      text-align: center;
+      margin-top: 0.75rem;
+      color: var(--text-secondary);
+      font-size: 0.95rem;
+    }
+
+    /* Start screen */
+    .logo {
+      text-align: center;
+      margin-bottom: 1.5rem;
+    }
+
+    .logo-icon {
+      font-size: 3.5rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .logo-title {
+      font-size: 1.75rem;
+      font-weight: 800;
+    }
+
+    .logo-subtitle {
+      color: var(--text-secondary);
+      font-size: 0.95rem;
+    }
+
+    .player-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: var(--bg-card);
+      padding: 0.75rem 1.5rem;
+      border-radius: 2rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .player-avatar {
+      font-size: 1.75rem;
+    }
+
+    .player-name {
+      font-size: 1.25rem;
+      font-weight: 600;
+    }
+
+    .player-grade {
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+    }
+
+    .instructions {
+      font-size: 0.9rem;
+      line-height: 1.8;
+      color: var(--text-secondary);
+      text-align: center;
+    }
+
+    /* Sound indicator */
+    .sound-note {
+      text-align: center;
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      margin-top: 0.5rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    
+    <!-- SCREEN: Start -->
+    <div id="screen-start" class="screen active">
+      <div class="logo">
+        <div class="logo-icon">🌍</div>
+        <div class="logo-title">המירוץ למיליון</div>
+        <div class="logo-subtitle">מסע מתמטי סביב העולם</div>
+      </div>
+
+      <div style="text-align: center;">
+        <div class="player-badge">
+          <span class="player-avatar">👧</span>
+          <div>
+            <div class="player-name">מיקה</div>
+            <div class="player-grade">כיתה ה׳</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">בחרי מצב משחק</div>
+        <div class="mode-grid">
+          <button class="mode-btn selected" data-mode="tourist" onclick="selectMode('tourist')">
+            <div class="mode-name">🧳 תייר</div>
+            <div class="mode-desc">למתחילים — שאלות קלות יותר</div>
+            <div class="mode-resources">
+              <span>🎯 3 רמזים</span>
+              <span>⏭️ 2 דילוגים</span>
+            </div>
+          </button>
+          <button class="mode-btn" data-mode="explorer" onclick="selectMode('explorer')">
+            <div class="mode-name">🧭 חוקר</div>
+            <div class="mode-desc">אתגר בינוני</div>
+            <div class="mode-resources">
+              <span>🎯 2 רמזים</span>
+              <span>⏭️ 1 דילוג</span>
+            </div>
+          </button>
+          <button class="mode-btn" data-mode="champion" onclick="selectMode('champion')">
+            <div class="mode-name">🏆 אלוף</div>
+            <div class="mode-desc">למומחים — שאלות מאתגרות</div>
+            <div class="mode-resources">
+              <span>🎯 1 רמז</span>
+              <span>⏭️ 0 דילוגים</span>
+            </div>
+          </button>
+          <button class="mode-btn daily" data-mode="daily" onclick="selectMode('daily')">
+            <div class="mode-name">📅 אתגר יומי</div>
+            <div class="mode-desc">מסלול קבוע להיום — התחרי בעצמך!</div>
+            <div class="mode-resources">
+              <span>🎯 2 רמזים</span>
+              <span>⏭️ 1 דילוג</span>
+            </div>
+          </button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="instructions">
+          טוסי סביב העולם ופתרי אתגרים מתמטיים בכל יעד.<br>
+          טעות = עונש זמן, אבל חייבים לענות נכון כדי להמשיך!<br>
+          סיימי את המסלול בזמן הכי מהיר 🏆
+        </div>
+      </div>
+
+      <button class="btn btn-primary" onclick="startGame()">
+        המראה! ✈️
+      </button>
+    </div>
+
+    <!-- SCREEN: Flying -->
+    <div id="screen-flying" class="screen">
+      <div class="header">
+        <div class="player-info">
+          <span>👧</span>
+          <span id="flying-text">טסים ל...</span>
+        </div>
+        <div class="timer" id="flying-timer">⏱️ 0:00</div>
+      </div>
+
+      <div class="map-container">
+        <svg id="map-svg" class="map-svg" viewBox="0 0 1000 500">
+          <rect width="1000" height="500" fill="#1a365d"/>
+          
+          <!-- World Map Base -->
+          <g id="countries">
+            <!-- North America -->
+            <path d="M80,50 L150,45 L200,50 L240,60 L260,80 L250,100 L220,95 L200,105 L180,100 L160,110 L140,105 L120,115 L100,110 L80,100 L70,80 Z" fill="#4a5568"/>
+            <path id="country-usa" d="M80,100 L120,115 L140,105 L160,110 L180,100 L200,105 L220,95 L240,110 L250,130 L240,150 L220,160 L200,165 L180,170 L160,175 L140,180 L120,175 L100,165 L85,150 L75,130 L78,115 Z" fill="#4a5568"/>
+            <path d="M120,175 L140,180 L155,190 L160,210 L150,230 L135,235 L125,225 L115,210 L110,195 L112,185 Z" fill="#4a5568"/>
+            
+            <!-- South America -->
+            <path id="country-brazil" d="M180,250 L220,240 L260,250 L280,280 L275,320 L260,360 L230,380 L200,375 L175,350 L165,310 L170,280 Z" fill="#4a5568"/>
+            <path id="country-argentina" d="M200,375 L230,380 L240,400 L235,440 L220,465 L200,470 L185,455 L180,420 L185,395 Z" fill="#4a5568"/>
+            <path d="M160,230 L180,250 L170,280 L165,310 L150,300 L145,270 L150,245 Z" fill="#4a5568"/>
+            
+            <!-- Greenland -->
+            <path d="M280,35 L320,30 L350,40 L355,70 L340,90 L310,95 L285,80 L275,55 Z" fill="#4a5568"/>
+            
+            <!-- Europe -->
+            <path id="country-uk" d="M410,95 L425,90 L435,100 L430,115 L418,120 L408,110 Z" fill="#4a5568"/>
+            <path d="M395,100 L408,98 L410,110 L402,118 L392,112 Z" fill="#4a5568"/>
+            <path id="country-france" d="M420,120 L445,115 L465,125 L470,145 L460,160 L440,165 L420,158 L415,140 Z" fill="#4a5568"/>
+            <path id="country-spain" d="M400,155 L420,158 L435,165 L440,185 L425,195 L400,190 L390,175 L392,160 Z" fill="#4a5568"/>
+            <path id="country-germany" d="M445,100 L475,95 L490,105 L488,125 L470,130 L450,125 L445,115 Z" fill="#4a5568"/>
+            <path id="country-italy" d="M470,145 L485,140 L500,155 L495,180 L480,195 L465,185 L460,165 Z" fill="#4a5568"/>
+            <path d="M490,90 L540,80 L580,90 L590,120 L575,140 L540,145 L510,140 L495,125 L490,105 Z" fill="#4a5568"/>
+            <path d="M450,50 L480,40 L510,45 L520,70 L505,90 L480,95 L460,85 L455,65 Z" fill="#4a5568"/>
+            <path id="country-greece" d="M505,160 L520,155 L530,165 L525,180 L510,185 L500,175 Z" fill="#4a5568"/>
+            
+            <!-- Russia -->
+            <path id="country-russia" d="M540,40 L650,30 L750,35 L820,50 L850,80 L840,110 L800,120 L750,115 L700,105 L650,95 L600,90 L560,85 L540,70 Z" fill="#4a5568"/>
+            
+            <!-- Middle East -->
+            <path id="country-israel" d="M545,175 L555,170 L562,180 L558,195 L548,200 L542,188 Z" fill="#4a5568"/>
+            <path id="country-turkey" d="M510,150 L550,145 L580,155 L575,170 L545,175 L520,170 L510,160 Z" fill="#4a5568"/>
+            <path d="M555,195 L590,185 L620,200 L625,230 L600,250 L565,245 L550,225 L548,205 Z" fill="#4a5568"/>
+            <path id="country-egypt" d="M510,195 L545,190 L550,220 L530,250 L500,245 L495,215 Z" fill="#4a5568"/>
+            
+            <!-- Africa -->
+            <path d="M400,195 L450,185 L500,190 L510,195 L495,215 L480,260 L430,255 L400,240 L395,215 Z" fill="#4a5568"/>
+            <path id="country-kenya" d="M540,290 L565,285 L575,310 L565,335 L540,340 L530,315 Z" fill="#4a5568"/>
+            <path id="country-southafrica" d="M480,370 L520,365 L545,385 L540,420 L510,435 L475,425 L465,400 L470,380 Z" fill="#4a5568"/>
+            <path d="M480,260 L520,250 L540,265 L540,290 L530,315 L540,340 L520,365 L480,370 L470,380 L460,350 L455,310 L465,280 Z" fill="#4a5568"/>
+            
+            <!-- Asia -->
+            <path id="country-india" d="M660,180 L700,175 L720,200 L715,250 L690,280 L660,275 L645,245 L650,210 Z" fill="#4a5568"/>
+            <path id="country-china" d="M720,100 L780,90 L830,100 L850,130 L840,165 L800,180 L760,175 L730,160 L715,130 L718,110 Z" fill="#4a5568"/>
+            <path d="M740,200 L770,195 L790,215 L785,250 L760,270 L735,265 L725,240 L730,215 Z" fill="#4a5568"/>
+            <path id="country-thailand" d="M755,220 L775,215 L785,235 L780,260 L765,275 L750,265 L748,240 Z" fill="#4a5568"/>
+            <path id="country-japan" d="M870,120 L890,115 L900,130 L895,155 L880,165 L865,155 L862,135 Z" fill="#4a5568"/>
+            
+            <!-- Australia & Oceania -->
+            <path d="M770,300 L820,295 L860,305 L870,320 L855,335 L810,340 L770,330 L765,315 Z" fill="#4a5568"/>
+            <path id="country-australia" d="M800,360 L860,350 L910,365 L930,400 L920,440 L880,460 L830,455 L790,430 L780,395 Z" fill="#4a5568"/>
+            <path d="M940,440 L955,435 L965,450 L960,470 L945,475 L935,460 Z" fill="#4a5568"/>
+          </g>
+          
+          <!-- Flight paths will be drawn here -->
+          <g id="flight-paths"></g>
+          
+          <!-- City markers will be drawn here -->
+          <g id="city-markers"></g>
+          
+          <!-- Animated plane -->
+          <g id="plane-group" style="display: none;">
+            <text font-size="24" dy="8" dx="-12">✈️</text>
+          </g>
+        </svg>
+        
+        <div class="progress-overlay">
+          <div class="progress-text" id="progress-text">יעד 1 מתוך 15</div>
+          <div class="progress-bar">
+            <div class="progress-fill" id="progress-fill" style="width: 0%"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="flying-message">🔊 צליל מנוע מטוס...</div>
+
+      <button class="btn btn-primary" id="landing-btn" onclick="showChallenge()">
+        🛬 נחיתה!
+      </button>
+    </div>
+
+    <!-- SCREEN: Challenge -->
+    <div id="screen-challenge" class="screen">
+      <div class="header">
+        <div class="player-info">
+          <span id="challenge-icon">🗼</span>
+          <div>
+            <div id="challenge-city">אתגר פריז</div>
+            <div style="font-size: 0.8rem; color: var(--text-secondary);" id="challenge-progress">יעד 1 מתוך 15</div>
+          </div>
+        </div>
+        <div class="timer" id="challenge-timer">⏱️ 0:00</div>
+      </div>
+
+      <div class="card">
+        <div class="question-header">
+          <div class="character-avatar" id="character-avatar">👨‍🍳</div>
+          <div class="character-info">
+            <div class="character-name" id="character-name">פייר האופה שואל:</div>
+            <div class="character-location" id="character-location">פריז, צרפת</div>
+          </div>
+        </div>
+        <div class="question-text" id="question-text">
+          טוען שאלה...
+        </div>
+      </div>
+
+      <div class="answers-grid" id="answers-grid">
+        <!-- Answers inserted by JS -->
+      </div>
+
+      <div class="lifelines">
+        <button class="lifeline-btn" id="hint-btn" onclick="useHint()">
+          🎯 רמז <span class="lifeline-count" id="hints-left">(3)</span>
+        </button>
+        <button class="lifeline-btn" id="skip-btn" onclick="useSkip()">
+          ⏭️ דלג ליעד אחר <span class="lifeline-count" id="skips-left">(2)</span>
+        </button>
+      </div>
+
+      <div id="hint-box" class="hint-box" style="display: none;"></div>
+      <div id="feedback-area"></div>
+    </div>
+
+    <!-- SCREEN: Finish -->
+    <div id="screen-finish" class="screen">
+      <div class="finish-trophy">
+        <div class="trophy-icon">🏆</div>
+        <div class="finish-title">סיימת את המירוץ!</div>
+        <div class="finish-subtitle">15 יעדים • סביב העולם</div>
+      </div>
+
+      <div class="medal-display" id="medal-display">
+        <!-- Medal inserted by JS -->
+      </div>
+
+      <div id="achievements-area" class="achievements">
+        <!-- Achievements inserted by JS -->
+      </div>
+
+      <div class="stats-grid">
+        <div class="stat-box time-display">
+          <div class="stat-value" id="final-time">0:00</div>
+          <div class="stat-label">הזמן שלך</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-value" id="final-correct">0/15</div>
+          <div class="stat-label">נכונות בניסיון ראשון</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-value" id="final-penalties">+0ש׳</div>
+          <div class="stat-label">עונשים</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">🗺️ המסלול שלך</div>
+        <div class="route-tags" id="route-tags">
+          <!-- Route tags inserted by JS -->
+        </div>
+      </div>
+
+      <div class="summary-code">
+        <div class="code-label">קוד סיכום (להורים)</div>
+        <div class="code-value" id="summary-code">MIKA-0000-0:00-0/15-0H</div>
+      </div>
+
+      <button class="btn btn-primary" onclick="resetGame()">
+        מירוץ חדש! 🔄
+      </button>
+    </div>
+
+  </div>
+
+<script>
+// ============================================
+// GAME CONFIGURATION
+// ============================================
+
+const PLAYER_NAME = "MIKA";
+const PLAYER_DISPLAY = "מיקה";
+const GRADE = "ה׳";
+const PENALTY_SECONDS = 10;
+const CITIES_PER_GAME = 15;
+
+// Medal thresholds (in seconds)
+const MEDAL_GOLD = 180;    // Under 3 minutes
+const MEDAL_SILVER = 300;  // Under 5 minutes  
+const MEDAL_BRONZE = 420;  // Under 7 minutes
+
+// Mode configurations
+const MODES = {
+  tourist:  { hints: 3, skips: 2, difficulty: 1, label: "תייר" },
+  explorer: { hints: 2, skips: 1, difficulty: 2, label: "חוקר" },
+  champion: { hints: 1, skips: 0, difficulty: 3, label: "אלוף" },
+  daily:    { hints: 2, skips: 1, difficulty: 2, label: "אתגר יומי" }
+};
+
+// ============================================
+// CITIES DATABASE
+// ============================================
+
+const CITIES = [
+  // Easy cities (Europe/nearby)
+  { id: "paris", name: "פריז", country: "צרפת", flag: "🇫🇷", icon: "🗼", x: 445, y: 140, character: "👨‍🍳", charName: "פייר האופה", region: 1 },
+  { id: "rome", name: "רומא", country: "איטליה", flag: "🇮🇹", icon: "🏛️", x: 480, y: 170, character: "👨‍🍳", charName: "מריו השף", region: 1 },
+  { id: "london", name: "לונדון", country: "אנגליה", flag: "🇬🇧", icon: "🎡", x: 420, y: 108, character: "🎩", charName: "ג׳יימס המלצר", region: 1 },
+  { id: "berlin", name: "ברלין", country: "גרמניה", flag: "🇩🇪", icon: "🏰", x: 470, y: 112, character: "👨‍🔬", charName: "הנס המהנדס", region: 1 },
+  { id: "madrid", name: "מדריד", country: "ספרד", flag: "🇪🇸", icon: "💃", x: 410, y: 175, character: "💃", charName: "כרמן הרקדנית", region: 1 },
+  { id: "athens", name: "אתונה", country: "יוון", flag: "🇬🇷", icon: "🏛️", x: 515, y: 172, character: "🧔", charName: "ניקוס הפילוסוף", region: 1 },
+  { id: "amsterdam", name: "אמסטרדם", country: "הולנד", flag: "🇳🇱", icon: "🌷", x: 448, y: 105, character: "🚲", charName: "יאן הרוכב", region: 1 },
+  { id: "vienna", name: "וינה", country: "אוסטריה", flag: "🇦🇹", icon: "🎻", x: 490, y: 130, character: "🎼", charName: "מוצרט המוזיקאי", region: 1 },
+  { id: "prague", name: "פראג", country: "צ׳כיה", flag: "🇨🇿", icon: "🏰", x: 485, y: 118, character: "🎭", charName: "יאן האמן", region: 1 },
+  { id: "istanbul", name: "איסטנבול", country: "טורקיה", flag: "🇹🇷", icon: "🕌", x: 545, y: 160, character: "🧞", charName: "מהמט הסוחר", region: 1 },
+  { id: "cairo", name: "קהיר", country: "מצרים", flag: "🇪🇬", icon: "🏜️", x: 530, y: 210, character: "🐪", charName: "עומר המדריך", region: 1 },
+  { id: "moscow", name: "מוסקבה", country: "רוסיה", flag: "🇷🇺", icon: "🏰", x: 590, y: 85, character: "🎖️", charName: "איבן הגנרל", region: 1 },
+  
+  // Medium cities (Asia/Africa)
+  { id: "mumbai", name: "מומביי", country: "הודו", flag: "🇮🇳", icon: "🕌", x: 665, y: 230, character: "🧘", charName: "ראג׳ המורה", region: 2 },
+  { id: "beijing", name: "בייג׳ינג", country: "סין", flag: "🇨🇳", icon: "🏯", x: 780, y: 130, character: "🐉", charName: "לי החכם", region: 2 },
+  { id: "tokyo", name: "טוקיו", country: "יפן", flag: "🇯🇵", icon: "🗾", x: 878, y: 145, character: "🥷", charName: "יוקי הסמוראי", region: 2 },
+  { id: "bangkok", name: "בנגקוק", country: "תאילנד", flag: "🇹🇭", icon: "🛕", x: 762, y: 245, character: "🙏", charName: "סומצ׳אי הנזיר", region: 2 },
+  { id: "singapore", name: "סינגפור", country: "סינגפור", flag: "🇸🇬", icon: "🦁", x: 775, y: 290, character: "👨‍💼", charName: "לים האיש עסקים", region: 2 },
+  { id: "dubai", name: "דובאי", country: "איחוד האמירויות", flag: "🇦🇪", icon: "🏗️", x: 600, y: 215, character: "👳", charName: "חמד הסוחר", region: 2 },
+  { id: "nairobi", name: "ניירובי", country: "קניה", flag: "🇰🇪", icon: "🦁", x: 555, y: 310, character: "🦒", charName: "קיפצ׳וגה הרץ", region: 2 },
+  { id: "capetown", name: "קייפטאון", country: "דרום אפריקה", flag: "🇿🇦", icon: "🏔️", x: 505, y: 410, character: "🦓", charName: "נלסון המדריך", region: 2 },
+  { id: "seoul", name: "סיאול", country: "דרום קוריאה", flag: "🇰🇷", icon: "🎎", x: 845, y: 140, character: "🎮", charName: "מין-הו הגיימר", region: 2 },
+  { id: "hongkong", name: "הונג קונג", country: "סין", flag: "🇭🇰", icon: "🌃", x: 805, y: 195, character: "🥋", charName: "ג׳קי הלוחם", region: 2 },
+  
+  // Hard cities (Americas/remote)
+  { id: "newyork", name: "ניו יורק", country: "ארה״ב", flag: "🇺🇸", icon: "🗽", x: 185, y: 145, character: "🎤", charName: "ג׳ון הזמר", region: 3 },
+  { id: "losangeles", name: "לוס אנג׳לס", country: "ארה״ב", flag: "🇺🇸", icon: "🎬", x: 95, y: 160, character: "🎬", charName: "סטיב הבמאי", region: 3 },
+  { id: "mexico", name: "מקסיקו סיטי", country: "מקסיקו", flag: "🇲🇽", icon: "🌮", x: 135, y: 210, character: "🎸", charName: "חואן הגיטריסט", region: 3 },
+  { id: "rio", name: "ריו דה ז׳נירו", country: "ברזיל", flag: "🇧🇷", icon: "🎭", x: 245, y: 340, character: "⚽", charName: "רונלדו הכדורגלן", region: 3 },
+  { id: "buenosaires", name: "בואנוס איירס", country: "ארגנטינה", flag: "🇦🇷", icon: "💃", x: 215, y: 410, character: "💃", charName: "אווה הרקדנית", region: 3 },
+  { id: "sydney", name: "סידני", country: "אוסטרליה", flag: "🇦🇺", icon: "🦘", x: 880, y: 410, character: "🏄", charName: "מייק הגולש", region: 3 },
+  { id: "toronto", name: "טורונטו", country: "קנדה", flag: "🇨🇦", icon: "🍁", x: 175, y: 120, character: "🏒", charName: "וויין השחקן", region: 3 },
+  { id: "lima", name: "לימה", country: "פרו", flag: "🇵🇪", icon: "🏔️", x: 170, y: 320, character: "🦙", charName: "פדרו המטפס", region: 3 },
+  { id: "santiago", name: "סנטיאגו", country: "צ׳ילה", flag: "🇨🇱", icon: "🏔️", x: 195, y: 395, character: "🍇", charName: "מיגל היינן", region: 3 },
+  { id: "havana", name: "הוואנה", country: "קובה", flag: "🇨🇺", icon: "🚗", x: 165, y: 195, character: "🎺", charName: "ראול המוזיקאי", region: 3 },
+  { id: "vancouver", name: "ונקובר", country: "קנדה", flag: "🇨🇦", icon: "🏔️", x: 85, y: 110, character: "🎿", charName: "כריס הגולש", region: 3 },
+  { id: "miami", name: "מיאמי", country: "ארה״ב", flag: "🇺🇸", icon: "🏖️", x: 165, y: 185, character: "🌴", charName: "דייב המציל", region: 3 },
+];
+
+// ============================================
+// QUESTIONS DATABASE (50 questions for 5th grade)
+// ============================================
+
+const QUESTIONS = [
+  // DIFFICULTY 1 - Easy (Tourist mode)
+  {
+    id: 1,
+    difficulty: 1,
+    text: "כמה זה <span class='highlight'>1/2 + 1/4</span>?",
+    answers: ["3/4", "2/6", "1/6", "2/4"],
+    correct: 0,
+    hint: "מצא מכנה משותף. מה המכנה המשותף של 2 ו-4?",
+    explanation: "1/2 = 2/4, אז 2/4 + 1/4 = 3/4"
+  },
+  {
+    id: 2,
+    difficulty: 1,
+    text: "כמה זה <span class='highlight'>0.5 + 0.25</span>?",
+    answers: ["0.75", "0.52", "0.30", "1.0"],
+    correct: 0,
+    hint: "חבר את הספרות אחרי הנקודה בנפרד.",
+    explanation: "0.5 + 0.25 = 0.75"
+  },
+  {
+    id: 3,
+    difficulty: 1,
+    text: "מה השבר המצומצם של <span class='highlight'>4/8</span>?",
+    answers: ["1/2", "2/4", "1/4", "2/8"],
+    correct: 0,
+    hint: "חלק גם את המונה וגם את המכנה באותו מספר.",
+    explanation: "4/8 ÷ 4 = 1/2"
+  },
+  {
+    id: 4,
+    difficulty: 1,
+    text: "כמה זה <span class='highlight'>24 × 5</span>?",
+    answers: ["120", "100", "125", "115"],
+    correct: 0,
+    hint: "24 × 5 = 24 × 10 ÷ 2",
+    explanation: "24 × 5 = 120"
+  },
+  {
+    id: 5,
+    difficulty: 1,
+    text: "כמה זה <span class='highlight'>3/5</span> של 100?",
+    answers: ["60", "50", "30", "35"],
+    correct: 0,
+    hint: "קודם חלק ב-5, ואז הכפל ב-3.",
+    explanation: "100 ÷ 5 = 20, ו-20 × 3 = 60"
+  },
+  {
+    id: 6,
+    difficulty: 1,
+    text: "מהו הממוצע של <span class='highlight'>4, 6, 8</span>?",
+    answers: ["6", "5", "7", "8"],
+    correct: 0,
+    hint: "חבר את כל המספרים וחלק במספר האיברים.",
+    explanation: "(4 + 6 + 8) ÷ 3 = 18 ÷ 3 = 6"
+  },
+  {
+    id: 7,
+    difficulty: 1,
+    text: "כמה זה <span class='highlight'>144 ÷ 12</span>?",
+    answers: ["12", "11", "13", "14"],
+    correct: 0,
+    hint: "12 × ? = 144",
+    explanation: "144 ÷ 12 = 12"
+  },
+  {
+    id: 8,
+    difficulty: 1,
+    text: "מה גדול יותר: <span class='highlight'>2/3</span> או <span class='highlight'>3/5</span>?",
+    answers: ["2/3", "3/5", "שווים", "אי אפשר לדעת"],
+    correct: 0,
+    hint: "הפוך לאותו מכנה (15) והשווה.",
+    explanation: "2/3 = 10/15, ו-3/5 = 9/15. לכן 2/3 גדול יותר."
+  },
+  {
+    id: 9,
+    difficulty: 1,
+    text: "כמה צלעות יש ל<span class='highlight'>מחומש</span>?",
+    answers: ["5", "4", "6", "7"],
+    correct: 0,
+    hint: "מחו-מש = מילה שמתחילה ב״מ״ ומסתיימת ב״מש״...",
+    explanation: "מחומש = 5 צלעות"
+  },
+  {
+    id: 10,
+    difficulty: 1,
+    text: "כמה זה <span class='highlight'>1.5 × 4</span>?",
+    answers: ["6", "5", "6.5", "4.5"],
+    correct: 0,
+    hint: "1 × 4 = 4, ו-0.5 × 4 = 2",
+    explanation: "1.5 × 4 = 6"
+  },
+  {
+    id: 11,
+    difficulty: 1,
+    text: "מה השטח של מלבן עם אורך <span class='highlight'>8</span> ורוחב <span class='highlight'>5</span>?",
+    answers: ["40", "26", "35", "45"],
+    correct: 0,
+    hint: "שטח מלבן = אורך × רוחב",
+    explanation: "8 × 5 = 40"
+  },
+  {
+    id: 12,
+    difficulty: 1,
+    text: "כמה זה <span class='highlight'>2/3 - 1/3</span>?",
+    answers: ["1/3", "1/6", "3/3", "0"],
+    correct: 0,
+    hint: "כשהמכנים שווים, פשוט מחסרים את המונים.",
+    explanation: "2/3 - 1/3 = 1/3"
+  },
+  {
+    id: 13,
+    difficulty: 1,
+    text: "עיגול את <span class='highlight'>3.47</span> לעשיריות",
+    answers: ["3.5", "3.4", "3.0", "4.0"],
+    correct: 0,
+    hint: "הסתכל על הספרה השנייה אחרי הנקודה (7). אם היא 5 או יותר - עגל למעלה.",
+    explanation: "3.47 ≈ 3.5 (כי 7 ≥ 5)"
+  },
+  {
+    id: 14,
+    difficulty: 1,
+    text: "כמה דקות יש ב-<span class='highlight'>2.5 שעות</span>?",
+    answers: ["150", "120", "130", "140"],
+    correct: 0,
+    hint: "שעה = 60 דקות",
+    explanation: "2.5 × 60 = 150 דקות"
+  },
+  {
+    id: 15,
+    difficulty: 1,
+    text: "מה ההיקף של ריבוע עם צלע <span class='highlight'>7</span>?",
+    answers: ["28", "49", "21", "14"],
+    correct: 0,
+    hint: "היקף ריבוע = 4 × צלע",
+    explanation: "4 × 7 = 28"
+  },
+  {
+    id: 16,
+    difficulty: 1,
+    text: "כמה זה <span class='highlight'>1000 ÷ 25</span>?",
+    answers: ["40", "25", "50", "45"],
+    correct: 0,
+    hint: "25 × 4 = 100, אז 25 × 40 = ?",
+    explanation: "1000 ÷ 25 = 40"
+  },
+  {
+    id: 17,
+    difficulty: 1,
+    text: "איזה שבר שווה ל-<span class='highlight'>0.2</span>?",
+    answers: ["1/5", "1/2", "2/5", "1/4"],
+    correct: 0,
+    hint: "0.2 = 2/10 = ?",
+    explanation: "0.2 = 2/10 = 1/5"
+  },
+
+  // DIFFICULTY 2 - Medium (Explorer mode)
+  {
+    id: 18,
+    difficulty: 2,
+    text: "אפיתי <span class='highlight'>3/4</span> מהעוגות בבוקר ועוד <span class='highlight'>1/2</span> אחרי הצהריים. כמה מכלל העוגות אפיתי?",
+    answers: ["1 1/4", "4/6", "5/6", "1 1/2"],
+    correct: 0,
+    hint: "מכנה משותף ל-4 ו-2 הוא 4. המר את 1/2 ל-?/4",
+    explanation: "3/4 + 2/4 = 5/4 = 1 1/4"
+  },
+  {
+    id: 19,
+    difficulty: 2,
+    text: "בכיתה יש <span class='highlight'>32</span> תלמידים. <span class='highlight'>3/8</span> מהם בנות. כמה בנות יש בכיתה?",
+    answers: ["12", "8", "16", "10"],
+    correct: 0,
+    hint: "קודם חלק 32 ב-8, ואז הכפל ב-3.",
+    explanation: "32 ÷ 8 = 4, ו-4 × 3 = 12 בנות"
+  },
+  {
+    id: 20,
+    difficulty: 2,
+    text: "מחיר חולצה <span class='highlight'>80 ₪</span>. יש הנחה של <span class='highlight'>25%</span>. מה המחיר החדש?",
+    answers: ["60 ₪", "55 ₪", "65 ₪", "70 ₪"],
+    correct: 0,
+    hint: "25% = רבע. כמה זה רבע מ-80?",
+    explanation: "25% מ-80 = 20, אז 80 - 20 = 60 ₪"
+  },
+  {
+    id: 21,
+    difficulty: 2,
+    text: "מה שטח משולש עם בסיס <span class='highlight'>10</span> וגובה <span class='highlight'>6</span>?",
+    answers: ["30", "60", "16", "40"],
+    correct: 0,
+    hint: "שטח משולש = (בסיס × גובה) ÷ 2",
+    explanation: "(10 × 6) ÷ 2 = 30"
+  },
+  {
+    id: 22,
+    difficulty: 2,
+    text: "הממוצע של 3 מספרים הוא <span class='highlight'>15</span>. מה הסכום שלהם?",
+    answers: ["45", "30", "50", "40"],
+    correct: 0,
+    hint: "ממוצע = סכום ÷ כמות. אז סכום = ממוצע × כמות",
+    explanation: "15 × 3 = 45"
+  },
+  {
+    id: 23,
+    difficulty: 2,
+    text: "כמה זה <span class='highlight'>2 1/3 + 1 2/3</span>?",
+    answers: ["4", "3 3/3", "3 1/3", "4 1/3"],
+    correct: 0,
+    hint: "חבר שלמים עם שלמים, ושברים עם שברים.",
+    explanation: "2 + 1 = 3, ו-1/3 + 2/3 = 3/3 = 1. סה״כ 4"
+  },
+  {
+    id: 24,
+    difficulty: 2,
+    text: "רכבת נוסעת <span class='highlight'>90 קמ״ש</span>. כמה ק״מ תעבור ב-<span class='highlight'>40 דקות</span>?",
+    answers: ["60 ק״מ", "50 ק״מ", "45 ק״מ", "70 ק״מ"],
+    correct: 0,
+    hint: "40 דקות = 2/3 שעה",
+    explanation: "40 דקות = 2/3 שעה. 90 × 2/3 = 60 ק״מ"
+  },
+  {
+    id: 25,
+    difficulty: 2,
+    text: "כמה זה <span class='highlight'>3.6 ÷ 0.4</span>?",
+    answers: ["9", "0.9", "8", "10"],
+    correct: 0,
+    hint: "הכפל את שני המספרים ב-10 כדי להיפטר מהנקודות.",
+    explanation: "36 ÷ 4 = 9"
+  },
+  {
+    id: 26,
+    difficulty: 2,
+    text: "מה היחס בין <span class='highlight'>15</span> ל-<span class='highlight'>25</span> בצורה מצומצמת?",
+    answers: ["3:5", "15:25", "1:2", "5:3"],
+    correct: 0,
+    hint: "מצא מחלק משותף ל-15 ו-25",
+    explanation: "15:25 ÷ 5 = 3:5"
+  },
+  {
+    id: 27,
+    difficulty: 2,
+    text: "סכום הזוויות במשולש הוא <span class='highlight'>180°</span>. אם שתי זוויות הן 45° ו-65°, מה הזווית השלישית?",
+    answers: ["70°", "60°", "80°", "75°"],
+    correct: 0,
+    hint: "חסר את סכום שתי הזוויות מ-180.",
+    explanation: "180 - 45 - 65 = 70°"
+  },
+  {
+    id: 28,
+    difficulty: 2,
+    text: "כמה זה <span class='highlight'>5/6 - 1/4</span>?",
+    answers: ["7/12", "4/2", "1/2", "11/12"],
+    correct: 0,
+    hint: "מכנה משותף ל-6 ו-4 הוא 12.",
+    explanation: "10/12 - 3/12 = 7/12"
+  },
+  {
+    id: 29,
+    difficulty: 2,
+    text: "קניתי <span class='highlight'>3</span> ספרים ב-<span class='highlight'>24.50 ₪</span> כל אחד. כמה שילמתי?",
+    answers: ["73.50 ₪", "72.50 ₪", "74.50 ₪", "75.00 ₪"],
+    correct: 0,
+    hint: "24.50 × 3 = ?",
+    explanation: "24.50 × 3 = 73.50 ₪"
+  },
+  {
+    id: 30,
+    difficulty: 2,
+    text: "מה שטח מקבילית עם בסיס <span class='highlight'>12</span> וגובה <span class='highlight'>5</span>?",
+    answers: ["60", "34", "30", "17"],
+    correct: 0,
+    hint: "שטח מקבילית = בסיס × גובה (כמו מלבן!)",
+    explanation: "12 × 5 = 60"
+  },
+  {
+    id: 31,
+    difficulty: 2,
+    text: "הפוך את השבר <span class='highlight'>7/4</span> למספר מעורב",
+    answers: ["1 3/4", "1 1/4", "2 1/4", "1 1/2"],
+    correct: 0,
+    hint: "כמה פעמים 4 נכנס ב-7?",
+    explanation: "7 ÷ 4 = 1 שארית 3, אז 1 3/4"
+  },
+  {
+    id: 32,
+    difficulty: 2,
+    text: "אם <span class='highlight'>x + 7 = 15</span>, מה הערך של x?",
+    answers: ["8", "7", "22", "9"],
+    correct: 0,
+    hint: "העבר את ה-7 לצד השני של המשוואה.",
+    explanation: "x = 15 - 7 = 8"
+  },
+  {
+    id: 33,
+    difficulty: 2,
+    text: "כמה זה <span class='highlight'>15%</span> מ-<span class='highlight'>200</span>?",
+    answers: ["30", "25", "35", "20"],
+    correct: 0,
+    hint: "10% מ-200 = 20, ו-5% = 10",
+    explanation: "15% מ-200 = 30"
+  },
+  {
+    id: 34,
+    difficulty: 2,
+    text: "מה ההפרש בין <span class='highlight'>3.7</span> ל-<span class='highlight'>1.85</span>?",
+    answers: ["1.85", "2.85", "1.75", "2.15"],
+    correct: 0,
+    hint: "סדר את המספרים בטור וחסר.",
+    explanation: "3.70 - 1.85 = 1.85"
+  },
+
+  // DIFFICULTY 3 - Hard (Champion mode)
+  {
+    id: 35,
+    difficulty: 3,
+    text: "בחנות יש <span class='highlight'>240</span> תפוחים. <span class='highlight'>2/5</span> אדומים, <span class='highlight'>1/4</span> ירוקים, והשאר צהובים. כמה תפוחים צהובים?",
+    answers: ["84", "96", "60", "72"],
+    correct: 0,
+    hint: "קודם חשב כמה אדומים וירוקים, ואז חסר מהסה״כ.",
+    explanation: "אדומים: 240 × 2/5 = 96. ירוקים: 240 × 1/4 = 60. צהובים: 240 - 96 - 60 = 84"
+  },
+  {
+    id: 36,
+    difficulty: 3,
+    text: "מחיר מקורי של מחשב: <span class='highlight'>1200 ₪</span>. אחרי הנחה של <span class='highlight'>30%</span>, מה המחיר?",
+    answers: ["840 ₪", "900 ₪", "800 ₪", "860 ₪"],
+    correct: 0,
+    hint: "30% מ-1200 = ? ואז חסר מהמחיר המקורי.",
+    explanation: "30% מ-1200 = 360. המחיר: 1200 - 360 = 840 ₪"
+  },
+  {
+    id: 37,
+    difficulty: 3,
+    text: "הממוצע של <span class='highlight'>5</span> מבחנים הוא <span class='highlight'>82</span>. אחרי מבחן שישי, הממוצע עלה ל-<span class='highlight'>84</span>. מה הציון במבחן השישי?",
+    answers: ["94", "90", "92", "88"],
+    correct: 0,
+    hint: "חשב את הסכום לפני ואחרי המבחן השישי.",
+    explanation: "סכום 5 מבחנים: 82 × 5 = 410. סכום 6 מבחנים: 84 × 6 = 504. המבחן השישי: 504 - 410 = 94"
+  },
+  {
+    id: 38,
+    difficulty: 3,
+    text: "שטח מלבן הוא <span class='highlight'>72</span>. האורך גדול פי <span class='highlight'>2</span> מהרוחב. מה האורך?",
+    answers: ["12", "6", "8", "9"],
+    correct: 0,
+    hint: "אם הרוחב הוא x, האורך הוא 2x. השתמש בנוסחת שטח.",
+    explanation: "רוחב × אורך = 72. x × 2x = 72. 2x² = 72. x² = 36. x = 6. האורך = 12"
+  },
+  {
+    id: 39,
+    difficulty: 3,
+    text: "כמה זה <span class='highlight'>3/4 × 2/5</span>?",
+    answers: ["6/20", "5/9", "5/20", "3/10"],
+    correct: 0,
+    hint: "בכפל שברים: מכפילים מונה במונה ומכנה במכנה.",
+    explanation: "3/4 × 2/5 = 6/20 = 3/10"
+  },
+  {
+    id: 40,
+    difficulty: 3,
+    text: "כמה זה <span class='highlight'>2.4 × 3.5</span>?",
+    answers: ["8.4", "8.9", "7.9", "9.4"],
+    correct: 0,
+    hint: "24 × 35 = 840, ואז הזז את הנקודה.",
+    explanation: "24 × 35 = 840. שתי ספרות אחרי הנקודה: 8.40 = 8.4"
+  },
+  {
+    id: 41,
+    difficulty: 3,
+    text: "יחס הבנים לבנות בכיתה הוא <span class='highlight'>3:5</span>. אם יש <span class='highlight'>15</span> בנות, כמה ילדים בכיתה?",
+    answers: ["24", "20", "18", "27"],
+    correct: 0,
+    hint: "אם 5 חלקים = 15, כמה זה חלק אחד?",
+    explanation: "חלק אחד = 15 ÷ 5 = 3. בנים: 3 × 3 = 9. סה״כ: 9 + 15 = 24"
+  },
+  {
+    id: 42,
+    difficulty: 3,
+    text: "אם <span class='highlight'>3x - 5 = 16</span>, מה הערך של x?",
+    answers: ["7", "5", "6", "8"],
+    correct: 0,
+    hint: "קודם הוסף 5 לשני הצדדים, ואז חלק ב-3.",
+    explanation: "3x = 21, אז x = 7"
+  },
+  {
+    id: 43,
+    difficulty: 3,
+    text: "שטח משולש הוא <span class='highlight'>48</span>. הבסיס הוא <span class='highlight'>12</span>. מה הגובה?",
+    answers: ["8", "4", "6", "10"],
+    correct: 0,
+    hint: "שטח = (בסיס × גובה) ÷ 2. פתור עבור הגובה.",
+    explanation: "48 = (12 × גובה) ÷ 2. 96 = 12 × גובה. גובה = 8"
+  },
+  {
+    id: 44,
+    difficulty: 3,
+    text: "היקף מלבן הוא <span class='highlight'>56</span>. האורך גדול ב-<span class='highlight'>4</span> מהרוחב. מה האורך?",
+    answers: ["16", "12", "14", "18"],
+    correct: 0,
+    hint: "היקף = 2 × (אורך + רוחב). אם הרוחב הוא x, האורך הוא x + 4.",
+    explanation: "56 = 2(x + x + 4). 28 = 2x + 4. x = 12. האורך = 16"
+  },
+  {
+    id: 45,
+    difficulty: 3,
+    text: "כמה זה <span class='highlight'>5/8 ÷ 1/4</span>?",
+    answers: ["2 1/2", "5/32", "1/2", "5/2"],
+    correct: 0,
+    hint: "בחילוק שברים: הופכים את השבר השני ומכפילים.",
+    explanation: "5/8 × 4/1 = 20/8 = 2 4/8 = 2 1/2"
+  },
+  {
+    id: 46,
+    difficulty: 3,
+    text: "מכונית נוסעת <span class='highlight'>75 קמ״ש</span>. כמה זמן ייקח לה לנסוע <span class='highlight'>225 ק״מ</span>?",
+    answers: ["3 שעות", "2.5 שעות", "4 שעות", "3.5 שעות"],
+    correct: 0,
+    hint: "זמן = מרחק ÷ מהירות",
+    explanation: "225 ÷ 75 = 3 שעות"
+  },
+  {
+    id: 47,
+    difficulty: 3,
+    text: "אם <span class='highlight'>40%</span> ממספר שווים ל-<span class='highlight'>60</span>, מהו המספר?",
+    answers: ["150", "100", "120", "140"],
+    correct: 0,
+    hint: "40% = 40/100 = 2/5. אם 2/5 של X = 60...",
+    explanation: "60 ÷ 0.4 = 150"
+  },
+  {
+    id: 48,
+    difficulty: 3,
+    text: "מחיר עלה ב-<span class='highlight'>20%</span> ל-<span class='highlight'>96 ₪</span>. מה היה המחיר המקורי?",
+    answers: ["80 ₪", "76 ₪", "84 ₪", "72 ₪"],
+    correct: 0,
+    hint: "המחיר החדש = 120% מהמקורי.",
+    explanation: "96 ÷ 1.2 = 80 ₪"
+  },
+  {
+    id: 49,
+    difficulty: 3,
+    text: "סכום <span class='highlight'>3</span> מספרים עוקבים הוא <span class='highlight'>63</span>. מהו המספר הגדול?",
+    answers: ["22", "21", "23", "20"],
+    correct: 0,
+    hint: "אם המספר האמצעי הוא x, המספרים הם x-1, x, x+1.",
+    explanation: "3x = 63, x = 21. המספר הגדול = 22"
+  },
+  {
+    id: 50,
+    difficulty: 3,
+    text: "בקופסה יש כדורים אדומים וכחולים ביחס <span class='highlight'>2:3</span>. הוספנו <span class='highlight'>10</span> כדורים אדומים והיחס נהיה <span class='highlight'>1:1</span>. כמה כדורים כחולים?",
+    answers: ["30", "20", "25", "15"],
+    correct: 0,
+    hint: "לפני: אדומים = 2x, כחולים = 3x. אחרי: 2x + 10 = 3x.",
+    explanation: "2x + 10 = 3x, אז x = 10. כדורים כחולים = 3 × 10 = 30"
+  }
+];
+
+// ============================================
+// GAME STATE
+// ============================================
+
+let gameState = {
+  mode: "tourist",
+  currentCity: 0,
+  route: [],
+  questions: [],
+  hintsLeft: 3,
+  skipsLeft: 2,
+  correctFirstTry: 0,
+  penalties: 0,
+  startTime: null,
+  elapsedSeconds: 0,
+  timerInterval: null,
+  currentQuestion: null,
+  wrongAnswers: []
+};
+
+// ============================================
+// SEEDED RANDOM (for daily challenge)
+// ============================================
+
+function seededRandom(seed) {
+  const x = Math.sin(seed++) * 10000;
+  return x - Math.floor(x);
+}
+
+function getDailySeed() {
+  const today = new Date();
+  return today.getFullYear() * 10000 + (today.getMonth() + 1) * 100 + today.getDate();
+}
+
+function shuffleWithSeed(array, seed) {
+  const result = [...array];
+  for (let i = result.length - 1; i > 0; i--) {
+    seed++;
+    const j = Math.floor(seededRandom(seed) * (i + 1));
+    [result[i], result[j]] = [result[j], result[i]];
+  }
+  return result;
+}
+
+// ============================================
+// GAME FUNCTIONS
+// ============================================
+
+function selectMode(mode) {
+  gameState.mode = mode;
+  document.querySelectorAll('.mode-btn').forEach(btn => btn.classList.remove('selected'));
+  document.querySelector(`[data-mode="${mode}"]`).classList.add('selected');
+}
+
+function startGame() {
+  const config = MODES[gameState.mode];
+  gameState.hintsLeft = config.hints;
+  gameState.skipsLeft = config.skips;
+  gameState.correctFirstTry = 0;
+  gameState.penalties = 0;
+  gameState.currentCity = 0;
+  gameState.wrongAnswers = [];
+  
+  // Generate route
+  if (gameState.mode === "daily") {
+    gameState.route = generateDailyRoute();
+    gameState.questions = generateDailyQuestions(config.difficulty);
+  } else {
+    gameState.route = generateRandomRoute();
+    gameState.questions = generateQuestions(config.difficulty);
+  }
+  
+  // Start timer
+  gameState.startTime = Date.now();
+  gameState.elapsedSeconds = 0;
+  gameState.timerInterval = setInterval(updateTimer, 1000);
+  
+  // Show flying screen
+  showFlyingScreen();
+}
+
+function generateRandomRoute() {
+  // Pick 5 from each region
+  const region1 = CITIES.filter(c => c.region === 1);
+  const region2 = CITIES.filter(c => c.region === 2);
+  const region3 = CITIES.filter(c => c.region === 3);
+  
+  const shuffled1 = region1.sort(() => Math.random() - 0.5).slice(0, 5);
+  const shuffled2 = region2.sort(() => Math.random() - 0.5).slice(0, 5);
+  const shuffled3 = region3.sort(() => Math.random() - 0.5).slice(0, 5);
+  
+  return [...shuffled1, ...shuffled2, ...shuffled3];
+}
+
+function generateDailyRoute() {
+  const seed = getDailySeed();
+  const region1 = shuffleWithSeed(CITIES.filter(c => c.region === 1), seed).slice(0, 5);
+  const region2 = shuffleWithSeed(CITIES.filter(c => c.region === 2), seed + 100).slice(0, 5);
+  const region3 = shuffleWithSeed(CITIES.filter(c => c.region === 3), seed + 200).slice(0, 5);
+  
+  return [...region1, ...region2, ...region3];
+}
+
+function generateQuestions(difficulty) {
+  let pool;
+  if (difficulty === 1) {
+    pool = QUESTIONS.filter(q => q.difficulty === 1);
+  } else if (difficulty === 2) {
+    pool = QUESTIONS.filter(q => q.difficulty <= 2);
+  } else {
+    pool = QUESTIONS.filter(q => q.difficulty >= 2);
+  }
+  
+  return pool.sort(() => Math.random() - 0.5).slice(0, 15);
+}
+
+function generateDailyQuestions(difficulty) {
+  const seed = getDailySeed() + 500;
+  let pool;
+  if (difficulty === 1) {
+    pool = QUESTIONS.filter(q => q.difficulty === 1);
+  } else if (difficulty === 2) {
+    pool = QUESTIONS.filter(q => q.difficulty <= 2);
+  } else {
+    pool = QUESTIONS.filter(q => q.difficulty >= 2);
+  }
+  
+  return shuffleWithSeed(pool, seed).slice(0, 15);
+}
+
+function updateTimer() {
+  gameState.elapsedSeconds = Math.floor((Date.now() - gameState.startTime) / 1000);
+  const display = formatTime(gameState.elapsedSeconds);
+  
+  document.querySelectorAll('.timer').forEach(el => {
+    el.innerHTML = `⏱️ ${display}`;
+  });
+}
+
+function formatTime(seconds) {
+  const mins = Math.floor(seconds / 60);
+  const secs = seconds % 60;
+  return `${mins}:${secs.toString().padStart(2, '0')}`;
+}
+
+function showScreen(screenId) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(`screen-${screenId}`).classList.add('active');
+}
+
+function showFlyingScreen() {
+  const city = gameState.route[gameState.currentCity];
+  document.getElementById('flying-text').textContent = `טסים ל${city.name}!`;
+  document.getElementById('progress-text').textContent = `יעד ${gameState.currentCity + 1} מתוך 15`;
+  document.getElementById('progress-fill').style.width = `${(gameState.currentCity / 15) * 100}%`;
+  document.getElementById('landing-btn').innerHTML = `🛬 נחיתה ב${city.name}!`;
+  
+  // Update map
+  updateMap();
+  
+  showScreen('flying');
+}
+
+function updateMap() {
+  const pathsGroup = document.getElementById('flight-paths');
+  const markersGroup = document.getElementById('city-markers');
+  pathsGroup.innerHTML = '';
+  markersGroup.innerHTML = '';
+  
+  // Tel Aviv starting point
+  const telAviv = { x: 552, y: 182 };
+  
+  // Draw completed paths
+  let prevPoint = telAviv;
+  for (let i = 0; i <= gameState.currentCity && i < gameState.route.length; i++) {
+    const city = gameState.route[i];
+    const isComplete = i < gameState.currentCity;
+    const isCurrent = i === gameState.currentCity;
+    
+    // Draw path
+    const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+    const midX = (prevPoint.x + city.x) / 2;
+    const midY = Math.min(prevPoint.y, city.y) - 30;
+    path.setAttribute("d", `M ${prevPoint.x} ${prevPoint.y} Q ${midX} ${midY} ${city.x} ${city.y}`);
+    path.setAttribute("stroke", isComplete ? "#22c55e" : "#ef4444");
+    path.setAttribute("stroke-width", "2.5");
+    path.setAttribute("fill", "none");
+    if (!isComplete && !isCurrent) {
+      path.setAttribute("opacity", "0.3");
+    }
+    pathsGroup.appendChild(path);
+    
+    // Draw marker
+    const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+    circle.setAttribute("cx", city.x);
+    circle.setAttribute("cy", city.y);
+    circle.setAttribute("r", isCurrent ? "8" : "6");
+    circle.setAttribute("fill", isComplete ? "#22c55e" : (isCurrent ? "#ef4444" : "#666"));
+    circle.setAttribute("stroke", "#fff");
+    circle.setAttribute("stroke-width", "2");
+    markersGroup.appendChild(circle);
+    
+    // Add pulse animation for current
+    if (isCurrent) {
+      const animate = document.createElementNS("http://www.w3.org/2000/svg", "animate");
+      animate.setAttribute("attributeName", "r");
+      animate.setAttribute("values", "8;11;8");
+      animate.setAttribute("dur", "0.8s");
+      animate.setAttribute("repeatCount", "indefinite");
+      circle.appendChild(animate);
+    }
+    
+    // City label
+    const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    text.setAttribute("x", city.x);
+    text.setAttribute("y", city.y + (city.y > 300 ? -15 : 22));
+    text.setAttribute("text-anchor", "middle");
+    text.setAttribute("fill", isComplete ? "#22c55e" : (isCurrent ? "#ef4444" : "#888"));
+    text.setAttribute("font-size", "10");
+    text.setAttribute("font-weight", "600");
+    text.textContent = isComplete ? `${city.name} ✓` : city.name;
+    markersGroup.appendChild(text);
+    
+    prevPoint = city;
+  }
+  
+  // Tel Aviv marker
+  const tlvCircle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+  tlvCircle.setAttribute("cx", telAviv.x);
+  tlvCircle.setAttribute("cy", telAviv.y);
+  tlvCircle.setAttribute("r", "6");
+  tlvCircle.setAttribute("fill", "#22c55e");
+  tlvCircle.setAttribute("stroke", "#fff");
+  tlvCircle.setAttribute("stroke-width", "2");
+  markersGroup.appendChild(tlvCircle);
+  
+  const tlvText = document.createElementNS("http://www.w3.org/2000/svg", "text");
+  tlvText.setAttribute("x", telAviv.x);
+  tlvText.setAttribute("y", telAviv.y + 20);
+  tlvText.setAttribute("text-anchor", "middle");
+  tlvText.setAttribute("fill", "#22c55e");
+  tlvText.setAttribute("font-size", "10");
+  tlvText.setAttribute("font-weight", "600");
+  tlvText.textContent = "תל אביב ✓";
+  markersGroup.appendChild(tlvText);
+  
+  // Highlight active countries
+  document.querySelectorAll('[id^="country-"]').forEach(el => {
+    el.setAttribute("fill", "#4a5568");
+  });
+  
+  const israelEl = document.getElementById('country-israel');
+  if (israelEl) israelEl.setAttribute("fill", "#22c55e");
+  
+  gameState.route.slice(0, gameState.currentCity + 1).forEach((city, i) => {
+    const isComplete = i < gameState.currentCity;
+    const isCurrent = i === gameState.currentCity;
+    // We don't have country IDs for all cities, so this is optional
+  });
+}
+
+function showChallenge() {
+  const city = gameState.route[gameState.currentCity];
+  const question = gameState.questions[gameState.currentCity];
+  
+  gameState.currentQuestion = question;
+  gameState.wrongAnswers = [];
+  
+  // Update UI
+  document.getElementById('challenge-icon').textContent = city.icon;
+  document.getElementById('challenge-city').textContent = `אתגר ${city.name}`;
+  document.getElementById('challenge-progress').textContent = `יעד ${gameState.currentCity + 1} מתוך 15`;
+  document.getElementById('character-avatar').textContent = city.character;
+  document.getElementById('character-name').textContent = `${city.charName} שואל:`;
+  document.getElementById('character-location').textContent = `${city.name}, ${city.country}`;
+  document.getElementById('question-text').innerHTML = question.text;
+  
+  // Generate answers
+  const answersGrid = document.getElementById('answers-grid');
+  answersGrid.innerHTML = '';
+  question.answers.forEach((answer, index) => {
+    const btn = document.createElement('button');
+    btn.className = 'answer-btn';
+    btn.textContent = answer;
+    btn.onclick = () => checkAnswer(index, btn);
+    answersGrid.appendChild(btn);
+  });
+  
+  // Update lifelines
+  document.getElementById('hints-left').textContent = `(${gameState.hintsLeft})`;
+  document.getElementById('skips-left').textContent = `(${gameState.skipsLeft})`;
+  document.getElementById('hint-btn').disabled = gameState.hintsLeft === 0;
+  document.getElementById('skip-btn').disabled = gameState.skipsLeft === 0;
+  
+  // Clear feedback
+  document.getElementById('hint-box').style.display = 'none';
+  document.getElementById('feedback-area').innerHTML = '';
+  
+  showScreen('challenge');
+}
+
+function checkAnswer(index, btn) {
+  const question = gameState.currentQuestion;
+  
+  if (index === question.correct) {
+    // Correct!
+    btn.classList.add('correct');
+    
+    // Count as first try if no wrong answers
+    if (gameState.wrongAnswers.length === 0) {
+      gameState.correctFirstTry++;
+    }
+    
+    // Disable all buttons
+    document.querySelectorAll('.answer-btn').forEach(b => b.disabled = true);
+    
+    // Show feedback
+    const city = gameState.route[gameState.currentCity];
+    const nextCity = gameState.route[gameState.currentCity + 1];
+    
+    let feedbackHTML = `
+      <div class="feedback feedback-correct">
+        <div class="feedback-title">✅ מצוין! ${city.name} נכבשה!</div>
+      </div>
+      <div class="explanation-box">
+        <strong>הסבר:</strong> ${question.explanation}
+      </div>
+    `;
+    
+    if (gameState.currentCity < 14) {
+      feedbackHTML += `
+        <button class="btn btn-primary" style="margin-top: 1rem;" onclick="nextCity()">
+          ליעד הבא! 🛫 ${nextCity.name}
+        </button>
+      `;
+    } else {
+      feedbackHTML += `
+        <button class="btn btn-primary" style="margin-top: 1rem;" onclick="finishGame()">
+          🏁 סיום המירוץ!
+        </button>
+      `;
+    }
+    
+    document.getElementById('feedback-area').innerHTML = feedbackHTML;
+    
+  } else {
+    // Wrong!
+    btn.classList.add('wrong');
+    btn.disabled = true;
+    gameState.wrongAnswers.push(index);
+    gameState.penalties += PENALTY_SECONDS;
+    
+    document.getElementById('feedback-area').innerHTML = `
+      <div class="feedback feedback-wrong">
+        <div class="feedback-title">❌ לא נכון!</div>
+        <div>+${PENALTY_SECONDS} שניות עונש. נסי שוב!</div>
+      </div>
+    `;
+  }
+}
+
+function useHint() {
+  if (gameState.hintsLeft <= 0) return;
+  
+  gameState.hintsLeft--;
+  document.getElementById('hints-left').textContent = `(${gameState.hintsLeft})`;
+  document.getElementById('hint-btn').disabled = gameState.hintsLeft === 0;
+  
+  document.getElementById('hint-box').innerHTML = `💡 <strong>רמז:</strong> ${gameState.currentQuestion.hint}`;
+  document.getElementById('hint-box').style.display = 'block';
+}
+
+function useSkip() {
+  if (gameState.skipsLeft <= 0) return;
+  
+  gameState.skipsLeft--;
+  
+  // Replace current question with a new one from the same difficulty
+  const currentDiff = gameState.currentQuestion.difficulty;
+  const availableQuestions = QUESTIONS.filter(q => 
+    q.difficulty === currentDiff && 
+    !gameState.questions.includes(q)
+  );
+  
+  if (availableQuestions.length > 0) {
+    const newQuestion = availableQuestions[Math.floor(Math.random() * availableQuestions.length)];
+    gameState.questions[gameState.currentCity] = newQuestion;
+    showChallenge();
+  } else {
+    // No replacement available, just refresh
+    showChallenge();
+  }
+}
+
+function nextCity() {
+  gameState.currentCity++;
+  showFlyingScreen();
+}
+
+function finishGame() {
+  clearInterval(gameState.timerInterval);
+  
+  const totalSeconds = gameState.elapsedSeconds + gameState.penalties;
+  const timeDisplay = formatTime(totalSeconds);
+  
+  // Determine medal
+  let medalHTML = '';
+  let medalName = '';
+  if (totalSeconds <= MEDAL_GOLD) {
+    medalHTML = `<div class="medal-icon">🥇</div><div class="medal-name medal-gold">מדליית זהב!</div>`;
+    medalName = 'G';
+  } else if (totalSeconds <= MEDAL_SILVER) {
+    medalHTML = `<div class="medal-icon">🥈</div><div class="medal-name medal-silver">מדליית כסף!</div>`;
+    medalName = 'S';
+  } else if (totalSeconds <= MEDAL_BRONZE) {
+    medalHTML = `<div class="medal-icon">🥉</div><div class="medal-name medal-bronze">מדליית ארד!</div>`;
+    medalName = 'B';
+  } else {
+    medalHTML = `<div class="medal-icon">🎖️</div><div class="medal-name">סיימת את המירוץ!</div>`;
+    medalName = '-';
+  }
+  document.getElementById('medal-display').innerHTML = medalHTML;
+  
+  // Achievements
+  const achievements = [];
+  if (gameState.correctFirstTry === 15) {
+    achievements.push('🎯 טיסה מושלמת');
+  }
+  if (totalSeconds <= 180) {
+    achievements.push('⚡ מהיר כברק');
+  }
+  if (gameState.penalties === 0) {
+    achievements.push('✨ ללא טעויות');
+  }
+  if (gameState.hintsLeft === MODES[gameState.mode].hints) {
+    achievements.push('🧠 בלי עזרה');
+  }
+  
+  document.getElementById('achievements-area').innerHTML = achievements.map(a => 
+    `<div class="achievement">${a}</div>`
+  ).join('');
+  
+  // Stats
+  document.getElementById('final-time').textContent = timeDisplay;
+  document.getElementById('final-correct').textContent = `${gameState.correctFirstTry}/15`;
+  document.getElementById('final-penalties').textContent = gameState.penalties > 0 ? `+${gameState.penalties}ש׳` : '0';
+  
+  // Route tags
+  document.getElementById('route-tags').innerHTML = 
+    `<span class="route-tag">🇮🇱 תל אביב</span>` +
+    gameState.route.map(city => 
+      `<span class="route-tag">${city.flag} ${city.name}</span>`
+    ).join('') +
+    `<span class="route-tag finish">🏁 סיום</span>`;
+  
+  // Summary code
+  const today = new Date();
+  const dateStr = `${(today.getMonth() + 1).toString().padStart(2, '0')}${today.getDate().toString().padStart(2, '0')}`;
+  const hintsUsed = MODES[gameState.mode].hints - gameState.hintsLeft;
+  const code = `${PLAYER_NAME}-${dateStr}-${timeDisplay}-${gameState.correctFirstTry}/15-${hintsUsed}H`;
+  document.getElementById('summary-code').textContent = code;
+  
+  showScreen('finish');
+}
+
+function resetGame() {
+  gameState = {
+    mode: "tourist",
+    currentCity: 0,
+    route: [],
+    questions: [],
+    hintsLeft: 3,
+    skipsLeft: 2,
+    correctFirstTry: 0,
+    penalties: 0,
+    startTime: null,
+    elapsedSeconds: 0,
+    timerInterval: null,
+    currentQuestion: null,
+    wrongAnswers: []
+  };
+  
+  document.querySelectorAll('.mode-btn').forEach(btn => btn.classList.remove('selected'));
+  document.querySelector('[data-mode="tourist"]').classList.add('selected');
+  
+  showScreen('start');
+}
+
+// Initialize
+showScreen('start');
+</script>
+</body>
+</html>
